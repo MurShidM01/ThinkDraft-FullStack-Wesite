@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center mb-4">Privacy Policy</h1>
+                    <p class="text-muted text-center mb-5">Last updated: {{ current_date }}</p>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">1. Information We Collect</h2>
+                        <p>We collect information that you provide directly to us, including:</p>
+                        <ul>
+                            <li>Account information (name, email address)</li>
+                            <li>Essay content and related materials</li>
+                            <li>Usage data and preferences</li>
+                            <li>Communication data when you contact us</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">2. How We Use Your Information</h2>
+                        <p>We use the collected information for:</p>
+                        <ul>
+                            <li>Providing and maintaining our services</li>
+                            <li>Processing your essay reviews</li>
+                            <li>Improving our services</li>
+                            <li>Communicating with you about your account</li>
+                            <li>Sending important updates and notifications</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">3. Data Security</h2>
+                        <p>We implement appropriate security measures to protect your personal information:</p>
+                        <ul>
+                            <li>Encryption of sensitive data</li>
+                            <li>Regular security assessments</li>
+                            <li>Access controls and authentication</li>
+                            <li>Secure data storage and transmission</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">4. Your Rights</h2>
+                        <p>You have the right to:</p>
+                        <ul>
+                            <li>Access your personal information</li>
+                            <li>Correct inaccurate data</li>
+                            <li>Request deletion of your data</li>
+                            <li>Opt-out of marketing communications</li>
+                            <li>Export your data</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">5. Cookies and Tracking</h2>
+                        <p>We use cookies and similar tracking technologies to:</p>
+                        <ul>
+                            <li>Remember your preferences</li>
+                            <li>Analyze website usage</li>
+                            <li>Improve user experience</li>
+                            <li>Provide personalized content</li>
+                        </ul>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">6. Third-Party Services</h2>
+                        <p>We may use third-party services that collect information. These services have their own privacy policies and may collect information as specified in their respective privacy policies.</p>
+                    </div>
+
+                    <div class="policy-section mb-4">
+                        <h2 class="h4 mb-3">7. Changes to This Policy</h2>
+                        <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last updated" date.</p>
+                    </div>
+
+                    <div class="policy-section">
+                        <h2 class="h4 mb-3">8. Contact Us</h2>
+                        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                        <ul>
+                            <li>Email: alikhanjalbani@outlook.com</li>
+                            <li>Phone: +923033060916</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .policy-section {
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .policy-section:hover {
+        transform: translateY(-2px);
+    }
+
+    .policy-section h2 {
+        color: var(--primary-color);
+    }
+
+    .policy-section ul {
+        padding-left: 1.5rem;
+    }
+
+    .policy-section li {
+        margin-bottom: 0.5rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .policy-section {
+            background: rgba(31, 41, 55, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+</style>
+{% endblock %} 

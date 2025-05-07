@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Essay for Review{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">
+                        <i class="fas fa-file-upload text-primary me-2"></i>
+                        Upload Essay for Review
+                    </h2>
+                    
+                    <div class="upload-container text-center p-5 mb-4">
+                        <form method="POST" enctype="multipart/form-data" class="upload-form" id="uploadForm">
+                            <div class="upload-area mb-4">
+                                <input type="file" name="file" id="file" class="file-input" accept=".txt,.docx" required>
+                                <label for="file" class="file-label">
+                                    <div class="icon-container mb-3">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="text-container">
+                                        <span class="primary-text">Choose a file</span>
+                                        <span class="secondary-text">or drag it here</span>
+                                    </div>
+                                    <div class="file-info mt-2 text-muted">
+                                        Supported formats: .txt, .docx
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div id="fileDetails" class="mb-4" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    Selected file: <span id="fileName">No file selected</span>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="uploadBtn">
+                                <i class="fas fa-upload me-2"></i>Upload and Review
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary rounded-pill">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        border-radius: 16px;
+        border: 2px dashed var(--primary);
+    }
+
+    .upload-area {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .file-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-label {
+        display: block;
+        padding: 2rem;
+        background: rgba(var(--primary-rgb), 0.05);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-label:hover {
+        background: rgba(var(--primary-rgb), 0.1);
+        transform: translateY(-2px);
+    }
+
+    .icon-container {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .text-container {
+        margin-bottom: 0.5rem;
+    }
+
+    .primary-text {
+        color: var(--primary);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .secondary-text {
+        color: #6c757d;
+    }
+
+    .file-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file');
+    const fileDetails = document.getElementById('fileDetails');
+    const fileName = document.getElementById('fileName');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileName.textContent = this.files[0].name;
+            fileDetails.style.display = 'block';
+        } else {
+            fileDetails.style.display = 'none';
+        }
+    });
+
+    uploadForm.addEventListener('submit', function() {
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+    });
+
+    // Drag and drop functionality
+    const uploadArea = document.querySelector('.upload-area');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        uploadArea.classList.add('highlight');
+    }
+
+    function unhighlight(e) {
+        uploadArea.classList.remove('highlight');
+    }
+
+    uploadArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        fileInput.files = files;
+        if (files && files[0]) {
+            fileName.textContent = files[0].name;
+            fileDetails.style.display = 'block';
+        }
+    }
+});
+</script>
+{% endblock %} 

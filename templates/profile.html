@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="profile-card card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="profile-header bg-primary text-white p-4">
+                    <div class="text-center">
+                        {% if current_user.profile_picture %}
+                        <div class="profile-image-container mb-4">
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" 
+                                 class="profile-image" alt="{{ current_user.username }}">
+                        </div>
+                        {% else %}
+                        <div class="profile-avatar mb-4">
+                            {{ current_user.username[0].upper() }}
+                        </div>
+                        {% endif %}
+                        <h3 class="profile-name mb-2">{{ current_user.username }}</h3>
+                        <p class="profile-date mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Member since {{ current_user.date_joined.strftime('%B %Y') }}
+                        </p>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="profile-stats">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="stat-value">{{ current_user.essays|length }}</div>
+                                    <div class="stat-label">Essays</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-value">{{ current_user.essays|selectattr('review', 'defined')|list|length }}</div>
+                                    <div class="stat-label">Reviewed</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary w-100 rounded-pill">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+                    <h4 class="profile-section-title mb-4">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                    </h4>
+                    <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group mb-4">
+                            {{ form.username.label(class="form-label fw-bold") }}
+                            {{ form.username(class="form-control form-control-lg rounded-3" + (" is-invalid" if form.username.errors else ""), placeholder="Enter your username") }}
+                            {% for error in form.username.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            {{ form.bio.label(class="form-label fw-bold") }}
+                            {{ form.bio(class="form-control form-control-lg rounded-3" + (" is-invalid" if form.bio.errors else ""), rows=4, placeholder="Tell us about yourself...") }}
+                            {% for error in form.bio.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            {{ form.profile_picture.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                {{ form.profile_picture(class="form-control form-control-lg rounded-3" + (" is-invalid" if form.profile_picture.errors else "")) }}
+                                <label class="input-group-text" for="profile_picture">
+                                    <i class="fas fa-upload"></i>
+                                </label>
+                            </div>
+                            {% for error in form.profile_picture.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Allowed formats: JPG, PNG, JPEG. Max size: 16MB
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg rounded-pill save-btn") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        transition: transform 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .profile-image-container {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-image:hover {
+        transform: scale(1.1);
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        font-weight: bold;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-date {
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .stat-card {
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        padding: 1.5rem;
+        border-radius: 16px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1;
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .profile-section-title {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 1.5rem;
+        position: relative;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1.2rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.15);
+    }
+
+    .input-group-text {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .input-group-text:hover {
+        background-color: var(--primary-dark);
+    }
+
+    .save-btn {
+        padding: 1rem 2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .profile-card {
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %} 

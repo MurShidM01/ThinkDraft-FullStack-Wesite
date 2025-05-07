@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Essay{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-magic me-2"></i>Generate New Essay</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="generateForm" onsubmit="showLoading('Crafting Your Essay', 'We are carefully crafting your essay with AI...')">
+                    <div class="mb-4">
+                        <label for="topic" class="form-label">Essay Topic</label>
+                        <input type="text" class="form-control" id="topic" name="topic" required
+                               placeholder="Enter your essay topic">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="word_count" class="form-label">Word Count</label>
+                        <select class="form-select" id="word_count" name="word_count" required>
+                            <option value="500">500 words</option>
+                            <option value="1000" selected>1000 words</option>
+                            <option value="1500">1500 words</option>
+                            <option value="2000">2000 words</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="style" class="form-label">Writing Style</label>
+                        <select class="form-select" id="style" name="style" required>
+                            <option value="academic" selected>Academic</option>
+                            <option value="creative">Creative</option>
+                            <option value="professional">Professional</option>
+                            <option value="casual">Casual</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="additional_instructions" class="form-label">Additional Instructions (Optional)</label>
+                        <textarea class="form-control" id="additional_instructions" name="additional_instructions" rows="3"
+                                  placeholder="Add any specific requirements or preferences for your essay"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-magic me-2"></i>Generate Essay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips for Better Results</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Be specific with your topic</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Provide clear instructions</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Choose the appropriate writing style</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Specify any particular focus areas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <h3 class="loading-text" id="loadingText">Crafting Your Essay</h3>
+    <p class="loading-subtext" id="loadingSubtext">We are carefully crafting your essay with AI...</p>
+    <div class="loading-progress">
+        <div class="loading-progress-bar"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showLoading(text, subtext) {
+        document.getElementById('loadingText').textContent = text;
+        document.getElementById('loadingSubtext').textContent = subtext;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    // Add loading animation to the form submission
+    document.getElementById('generateForm').addEventListener('submit', function(e) {
+        showLoading('Crafting Your Essay', 'We are carefully crafting your essay with AI...');
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-0">
+                <i class="fas fa-book me-2"></i>My Essays
+            </h2>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group">
+                <a href="{{ url_for('generate_essay') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-magic me-1"></i>Generate Essay
+                </a>
+                <a href="{{ url_for('upload_review') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-upload me-1"></i>Upload Essay
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if essays %}
+    <div class="row g-4">
+        {% for essay in essays %}
+        <div class="col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+            <div class="essay-card card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title text-primary mb-0">{{ essay.title }}</h5>
+                        {% if essay.review %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Reviewed
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="fas fa-clock me-1"></i>Pending Review
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="essay-meta mb-3">
+                        <div class="d-flex align-items-center text-muted">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span>{{ essay.date_posted.strftime('%B %d, %Y') }}</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted mt-2">
+                            <i class="fas fa-file-alt me-2"></i>
+                            <span>{{ essay.content|length // 5 }} words</span>
+                        </div>
+                    </div>
+
+                    <div class="essay-preview mb-3">
+                        <p class="text-muted mb-0">{{ essay.content[:150] }}...</p>
+                    </div>
+
+                    <div class="essay-actions">
+                        <div class="btn-group w-100">
+                            <a href="{{ url_for('preview_essay', essay_id=essay.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>Preview
+                            </a>
+                            {% if essay.review %}
+                            <a href="{{ url_for('view_review', essay_id=essay.id) }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-chart-bar me-1"></i>View Review
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('review_essay', essay_id=essay.id) }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-search me-1"></i>Get Review
+                            </a>
+                            {% endif %}
+                            <button type="button" class="btn btn-outline-danger btn-sm delete-essay-btn" 
+                                    data-essay-id="{{ essay.id }}"
+                                    data-essay-title="{{ essay.title }}">
+                                <i class="fas fa-trash-alt me-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5" data-aos="fade-up">
+        <div class="empty-state">
+            <div class="empty-state-icon mb-4">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 class="text-muted mb-4">No essays yet</h3>
+            <p class="text-muted mb-4">Get started by generating an essay or uploading one!</p>
+            <div class="btn-group">
+                <a href="{{ url_for('generate_essay') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-magic me-1"></i>Generate Essay
+                </a>
+                <a href="{{ url_for('upload_review') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-upload me-1"></i>Upload Essay
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to delete the essay "<span id="essayTitle" class="fw-bold"></span>"?</p>
+                <p class="text-danger mt-2 mb-0"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-alt me-2"></i>Delete Essay
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .essay-card {
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .essay-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .essay-meta {
+        font-size: 0.9rem;
+    }
+
+    .essay-preview {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-height: 4.8em;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .essay-preview::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 2em;
+        background: linear-gradient(transparent, rgba(255, 255, 255, 0.9));
+    }
+
+    .essay-actions .btn-group {
+        gap: 0.5rem;
+    }
+
+    .essay-actions .btn {
+        flex: 1;
+        border-radius: 8px !important;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .essay-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .badge {
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--primary-color);
+        opacity: 0.5;
+    }
+
+    /* Button Styling */
+    .btn {
+        border-radius: 8px !important;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-width: 1px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-group .btn {
+        margin: 0 0.25rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background: var(--gradient-primary);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-success {
+        background: var(--gradient-secondary);
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: var(--secondary-color);
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-outline-success {
+        border-color: var(--secondary-color);
+        color: var(--secondary-color);
+    }
+
+    .btn-outline-success:hover {
+        background: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+    }
+
+    .btn-outline-danger {
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .btn-outline-danger:hover {
+        background: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+    }
+
+    .btn-danger {
+        background: var(--danger-color);
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-light {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-color);
+    }
+
+    .btn-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+
+    .modal-header {
+        padding: 1.5rem 1.5rem 1rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .btn-close {
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+        .essay-card {
+            background: rgba(31, 41, 55, 0.8);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .essay-preview::after {
+            background: linear-gradient(transparent, rgba(31, 41, 55, 0.9));
+        }
+
+        .empty-state {
+            background: rgba(31, 41, 55, 0.5);
+        }
+
+        .modal-content {
+            background: rgba(31, 41, 55, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            color: var(--text-color);
+        }
+
+        .btn-light {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .btn-light:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.delete-essay-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const essayId = this.dataset.essayId;
+            const essayTitle = this.dataset.essayTitle;
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            document.getElementById('essayTitle').textContent = essayTitle;
+            document.getElementById('deleteForm').action = `/delete_essay/${essayId}`;
+            modal.show();
+        });
+    });
+</script>
+{% endblock %} 
