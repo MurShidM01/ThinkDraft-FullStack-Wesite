@@ -77,7 +77,7 @@
    Create a `.env` file in the project root:
    ```env
    SECRET_KEY=your-secret-key-here
-   GEMINI_API_KEY=your-gemini-api-key-here
+   OPENROUTER_API_KEY=openrouter-api-key-here
    ```
 
 5. **Initialize database**
